@@ -19,4 +19,4 @@ services:
     environment:
       - VPT_MONGODB_URL=mongodb://host.docker.internal:27017/prices
     restart: always
-    command: npm run prod
+    command: yarn prod
