@@ -35,8 +35,8 @@ export const getPriceChart = async (req: Request, res: Response) => {
   try {
     let from = req.params.from || 1414281564000
     let till = req.params.till || new Date().getTime()
-      console.log(from, till)
     let interval = getIntervalByTimeDifference(till - from)
+
     fetch(`https://web-api.coinmarketcap.com/v1/cryptocurrency/quotes/historical?convert=USD&format=chart_crypto_details&id=693&interval=${interval}&time_end=${till}&time_start=${from}`)
       .then(response => response.json())
       .then(json => {
@@ -73,17 +73,15 @@ export const getPriceChart = async (req: Request, res: Response) => {
 };
 
 const getIntervalByTimeDifference = (difference: number) => {
-    switch (difference) {
-        case 86400000:
-            return '5m'
-        case 604800000:
-            return '15m'
-        case 2592000000:
-            return '1h'
-        case 7866000000:
-            return '2h'
-        case 31536000000:
-        default:
-            return '1d'
-    }
+  if (difference < 604800000) {
+    return '5m'
+  } else if (difference >= 604800000 && difference < 2592000000) {
+    return '15m'
+  } else if (difference >= 2592000000 && difference < 7866000000) {
+    return '1h'
+  } else if (difference >= 7866000000 && difference < 31536000000) {
+    return '2h'
+  } else {
+    return '1d'
+  }
 }
