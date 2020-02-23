@@ -59,4 +59,4 @@ setInterval(() => {
     logger.info(`Start fetching currency (${currency})`);
     fetchAndUpdatePrices(currency);
   });
-}, 2.5 * 60 * 1000);
+}, 25 * 60 * 1000);
