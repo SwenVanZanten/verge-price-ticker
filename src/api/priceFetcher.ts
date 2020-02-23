@@ -16,11 +16,13 @@ const priceUpdate = (content: { currency: string }) =>
   );
 
 const fetchAndUpdatePrices = (currency: string) => {
+  let apiKey = '5059cc8d0ec522c32edba3e567ae13609f3180854bdb29707ac469bf06e18314'
+
   fetch("https://api.coinpaprika.com/v1/ticker/xvg-verge")
     .then(res => res.ok && res.json())
     .then(({ rank }) => {
       fetch(
-        `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=XVG&tsyms=${currency}`
+        `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=XVG&tsyms=${currency}&api_key=${apiKey}`
       )
         .then(res => res.ok && res.json())
         .then(({ RAW: { XVG: { [currency]: currencyData } }, ...rest }) => {
