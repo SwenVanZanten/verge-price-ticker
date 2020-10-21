@@ -16,7 +16,7 @@ const priceUpdate = (content: { currency: string }) =>
   );
 
 const fetchAndUpdatePrices = (currency: string) => {
-  let apiKey = '5059cc8d0ec522c32edba3e567ae13609f3180854bdb29707ac469bf06e18314'
+  let apiKey = 'be39ea29032b0f6d5225143bf759ea2b6e8ce44d69f5f2ce3f40e4234733b383'
 
   fetch("https://api.coinpaprika.com/v1/ticker/xvg-verge")
     .then(res => res.ok && res.json())
