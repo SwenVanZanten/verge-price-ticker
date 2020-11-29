@@ -1,5 +1,4 @@
-var mongoose = require("mongoose");
-const currenciesSupported = require("./priceTable.json");
+import mongoose from "mongoose";
 var Schema = mongoose.Schema;
 
 var PriceSchema = new Schema({
@@ -54,12 +53,7 @@ var PriceSchema = new Schema({
   currency: {
     type: [
       {
-        type: String,
-        enum: [
-          currenciesSupported.currencies.map(
-            ({ currency }: { currency: string }) => currency
-          )
-        ]
+        type: String
       }
     ]
   }

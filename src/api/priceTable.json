@@ -1,10 +1,6 @@
 {
   "currencies": [
     {
-      "currency": "ARS",
-      "name": "Argentine Peso"
-    },
-    {
       "currency": "AUD",
       "name": "Australian Dollar"
     },
@@ -45,20 +41,8 @@
       "name": "Indonesian Rupiah"
     },
     {
-      "currency": "MOP",
-      "name": "Macanese Pataca"
-    },
-    {
-      "currency": "NOK",
-      "name": "Norwegian Krone"
-    },
-    {
       "currency": "NZD",
       "name": "New Zealand Dollar"
-    },
-    {
-      "currency": "PHP",
-      "name": "Philippine Peso"
     },
     {
       "currency": "RUB",

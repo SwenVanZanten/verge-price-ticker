@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import currenciesSupported from "./priceTable.json";
 
 var PriceSchema = new Schema({

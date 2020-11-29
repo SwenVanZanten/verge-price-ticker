@@ -8,15 +8,24 @@ services:
       - ./data/:/data/db
     restart: always
 
+  tor:
+    image: dperson/torproxy:latest
+    ports:
+      - 9050:9050
+
   verge-price-tinker:
     build: .
     links:
       - database
     depends_on:
       - database
+      - tor
     ports:
       - 3003:3003
     environment:
-      - VPT_MONGODB_URL=mongodb://host.docker.internal:27017/prices
+      - VPT_MONGODB_URL=mongodb://database:27017/prices
+      - CRYPTO_COMPARE_API_KEY=${CRYPTO_COMPARE_API_KEY}
+      - TOR_HOST=tor
+      - TOR_PORT=9050
     restart: always
     command: yarn prod

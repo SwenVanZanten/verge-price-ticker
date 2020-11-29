@@ -1,13 +1,16 @@
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import express from "express";
+import * as core from "express-serve-static-core";
 
 import { logger } from "./logging";
 
 // creation of models
-require("./api/priceModel");
+import "./api/priceModel";
 // creation of the price fetcher
-require("./api/priceFetcher");
+import "./api/priceFetcher";
+import routes  from "./api/routes";
+
 // starting of express
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -16,7 +19,7 @@ const PORT = process.env.PORT || 3003;
 mongoose.Promise = global.Promise;
 mongoose.connect(
   process.env.VPT_MONGODB_URL || "mongodb://localhost/prices",
-  { useNewUrlParser: true }
+  { useNewUrlParser: true, useUnifiedTopology: true }
 );
 
 const allowCrossDomain = (req: any, res: any, next: any) => {
@@ -31,8 +34,7 @@ app.use(allowCrossDomain);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const routes = require("./api/routes");
-routes(app);
+routes(app as unknown as core.Express);
 
 /**
  * Handler for everything that didn't found any route

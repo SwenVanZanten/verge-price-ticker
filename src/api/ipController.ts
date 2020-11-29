@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
+import * as core  from "express-serve-static-core";
 import fetch from "node-fetch";
 import { sendError, sendJSON } from "./defaultController";
 
-export const getIpDetails = async (req: Request, res: Response) => {
+export const getIpDetails = async (req: core.Request, res: core.Response) => {
   try {
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 

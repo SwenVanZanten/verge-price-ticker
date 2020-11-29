@@ -1,64 +1,92 @@
-import mongoose from "mongoose";
-import fetch from "node-fetch";
-const Price = mongoose.model("Price");
-import priceTable from "./priceTable.json";
-import { logger } from "../logging";
+import mongoose from 'mongoose'
+import wrappedFetch from 'socks5-node-fetch'
+
+const torHost = process.env.TOR_HOST || '127.0.0.1'
+const torPort = process.env.TOR_PORT || 9050
+const fetch = wrappedFetch({
+    socksHost: torHost,
+    socksPort: torPort
+})
+
+const Price = mongoose.model('Price')
+import {logger} from '../logging'
+import {HttpProxyAgent} from 'http-proxy-agent'
+
+const currencies = [
+    'AUD',
+    'BRL',
+    'CAD',
+    'CHF',
+    'CNY',
+    'DKK',
+    'EUR',
+    'GBP',
+    'HKD',
+    'IDR',
+    'NZD',
+    'RUB',
+    'SGD',
+    'THB',
+    'USD'
+]
 
 const priceUpdate = (content: { currency: string }) =>
-  Price.updateOne(
-    { currency: content.currency },
-    content,
-    { upsert: true, setDefaultsOnInsert: true },
-    err => {
-      if (err) logger.error(err);
-      else logger.info(`Updated currency (${content.currency}) successfully`);
-    }
-  );
+    Price.updateOne(
+        {currency: content.currency},
+        content,
+        {upsert: true, setDefaultsOnInsert: true},
+        err => {
+            if (err) logger.error(err)
+            else logger.info(`Updated currency (${content.currency}) successfully`)
+        }
+    )
 
-const fetchAndUpdatePrices = (currency: string) => {
-  let apiKey = 'be39ea29032b0f6d5225143bf759ea2b6e8ce44d69f5f2ce3f40e4234733b383'
+const fetchAndUpdatePrices = () => {
+    const apiKey = process.env.CRYPTO_COMPARE_API_KEY || '93746a9ac911b2e240f68829794423f80ab36bddc344a2c385bc5eadcc52cfec'
 
-  fetch("https://api.coinpaprika.com/v1/ticker/xvg-verge")
-    .then(res => res.ok && res.json())
-    .then(({ rank }) => {
-      fetch(
-        `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=XVG&tsyms=${currency}&api_key=${apiKey}`
-      )
+    logger.info(`Start fetching currencies`)
+
+    fetch(
+        `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=XVG&tsyms=${currencies.join(',')}&api_key=${apiKey}`
+    )
         .then(res => res.ok && res.json())
-        .then(({ RAW: { XVG: { [currency]: currencyData } }, ...rest }) => {
-          const newPrice = {
-            price: currencyData.PRICE,
-            rank: rank,
-            openday: currencyData.OPENDAY,
-            highday: currencyData.HIGHDAY,
-            lowday: currencyData.LOWDAY,
-            open24Hour: currencyData.OPEN24HOUR,
-            high24Hour: currencyData.HIGH24HOUR,
-            low24Hour: currencyData.LOW24HOUR,
-            change24Hour: currencyData.CHANGE24HOUR,
-            changepct24Hour: currencyData.CHANGEPCT24HOUR,
-            changeday: currencyData.CHANGEDAY,
-            changepctday: currencyData.CHANGEPCTDAY,
-            supply: currencyData.SUPPLY,
-            mktcap: currencyData.MKTCAP,
-            totalvolume24H: currencyData.TOTALVOLUME24H,
-            totalvolume24Hto: currencyData.TOTALVOLUME24HTO,
-            currency
-          };
+        .then(response => {
+            const currencyDataSet = response.RAW.XVG
 
-          priceUpdate(newPrice);
-        });
-    });
-};
+            for (const currency in currencyDataSet) {
 
-priceTable.currencies.forEach(({ currency }) => {
-  logger.info(`Start fetching currency (${currency})`);
-  fetchAndUpdatePrices(currency);
-});
+                const currencyData = currencyDataSet[currency]
+                const newPrice = {
+                    price: currencyData.PRICE,
+                    rank: 1,
+                    openday: currencyData.OPENDAY,
+                    highday: currencyData.HIGHDAY,
+                    lowday: currencyData.LOWDAY,
+                    open24Hour: currencyData.OPEN24HOUR,
+                    high24Hour: currencyData.HIGH24HOUR,
+                    low24Hour: currencyData.LOW24HOUR,
+                    change24Hour: currencyData.CHANGE24HOUR,
+                    changepct24Hour: currencyData.CHANGEPCT24HOUR,
+                    changeday: currencyData.CHANGEDAY,
+                    changepctday: currencyData.CHANGEPCTDAY,
+                    supply: currencyData.SUPPLY,
+                    mktcap: currencyData.MKTCAP,
+                    totalvolume24H: currencyData.TOTALVOLUME24H,
+                    totalvolume24Hto: currencyData.TOTALVOLUME24HTO,
+                    currency
+                }
+
+                priceUpdate(newPrice)
+            }
+        })
+        .catch(e => {
+            logger.error(e.message)
+        })
+}
+
+fetchAndUpdatePrices()
 
 setInterval(() => {
-  priceTable.currencies.forEach(({ currency }) => {
-    logger.info(`Start fetching currency (${currency})`);
-    fetchAndUpdatePrices(currency);
-  });
-}, 25 * 60 * 1000);
+    logger.info('Price fetching interval')
+    fetchAndUpdatePrices()
+}, 3 * 60 * 1000)

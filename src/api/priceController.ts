@@ -1,17 +1,17 @@
-import { Request, Response } from "express";
 import fetch from "node-fetch";
-import mongoose = require("mongoose");
+import mongoose from "mongoose";
 const Price = mongoose.model("Price");
 import { sendError, sendJSON } from "./defaultController";
+import * as core from 'express-serve-static-core'
 
-export const getPriceByCurrency = async (req: Request, res: Response) => {
-  if (!req.params.currency) {
+export const getPriceByCurrency = async (request: core.Request, res: core.Response) => {
+  if (!request.params.currency) {
     sendError(res, "you have to send a valid currency tag i.e. EUR");
   }
 
   try {
     const price = await Price.findOne({
-      currency: req.params.currency.toUpperCase()
+      currency: request.params.currency.toUpperCase()
     });
     if (price) {
       const { _id, currency, ...rest } = price.toObject();
@@ -24,17 +24,17 @@ export const getPriceByCurrency = async (req: Request, res: Response) => {
   }
 };
 
-const sendErrorFindingCurrency = (res: Response) => {
+const sendErrorFindingCurrency = (res: core.Response) => {
   sendError(
     res,
     "We weren't able to fetch your request, maybe check your currency input."
   );
 };
 
-export const getPriceChart = async (req: Request, res: Response) => {
+export const getPriceChart = async (request: core.Request, res: core.Response) => {
   try {
-    let from = req.params.from || 1414281564000
-    let till = req.params.till || new Date().getTime()
+    const from: number = (request.params.from || 1414281564000) as number
+    const till: number = (request.params.till || new Date().getTime()) as number
     let interval = getIntervalByTimeDifference(till - from)
 
     fetch(`https://web-api.coinmarketcap.com/v1/cryptocurrency/quotes/historical?convert=USD&format=chart_crypto_details&id=693&interval=${interval}&time_end=${till}&time_start=${from}`)
