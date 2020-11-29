@@ -23,7 +23,7 @@ services:
     ports:
       - 3003:3003
     environment:
-      - VPT_MONGODB_URL=mongodb://database:27017/prices
+      - VPT_MONGODB_URL=${VPT_MONGODB_URL}
       - CRYPTO_COMPARE_API_KEY=${CRYPTO_COMPARE_API_KEY}
       - TOR_HOST=tor
       - TOR_PORT=9050

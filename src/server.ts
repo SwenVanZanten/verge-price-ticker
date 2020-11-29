@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3003;
 mongoose.Promise = global.Promise;
 mongoose.connect(
   process.env.VPT_MONGODB_URL || "mongodb://localhost/prices",
-  { useNewUrlParser: true, useUnifiedTopology: true }
+  { useNewUrlParser: true }
 );
 
 const allowCrossDomain = (req: any, res: any, next: any) => {
